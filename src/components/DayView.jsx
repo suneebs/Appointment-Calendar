@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { format } from "date-fns";
+import { format, parseISO, isBefore, startOfDay } from "date-fns";
 import AppointmentModal from "./AppointmentModal";
 
 export default function DayView({ appointments, onSave }) {
   const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [showModal, setShowModal] = useState(false);
+
+  const today = startOfDay(new Date());
+  const isPastDate = isBefore(parseISO(selectedDate), today);
 
   // Filter appointments for selected date
   const dailyAppointments = appointments
@@ -50,11 +53,25 @@ export default function DayView({ appointments, onSave }) {
         )}
       </div>
 
+      {/* Past Date Warning */}
+      {isPastDate && (
+        <div className="text-sm text-red-600 mt-4 italic text-center">
+          Past date — We cannot add or edit appointments.
+        </div>
+      )}
+
       {/* Add Appointment Button */}
       <div className="mt-6">
         <button
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-          onClick={() => setShowModal(true)}
+          className={`w-full py-2 rounded text-white ${
+            isPastDate
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
+          onClick={() => {
+            if (!isPastDate) setShowModal(true);
+          }}
+          disabled={isPastDate}
         >
           Add / Edit Appointments
         </button>
@@ -66,7 +83,7 @@ export default function DayView({ appointments, onSave }) {
           selectedDate={selectedDate}
           onClose={() => setShowModal(false)}
           onSave={handleSave}
-          appointments={appointments} // pass full list
+          appointments={appointments}
         />
       )}
     </div>

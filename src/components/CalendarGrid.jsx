@@ -4,8 +4,6 @@ import {
   getDay,
   format,
   isSameDay,
-  isBefore,
-  startOfDay,
 } from "date-fns";
 import { useState } from "react";
 import AppointmentModal from "./AppointmentModal";
@@ -15,10 +13,7 @@ export default function CalendarGrid({ appointments, onSave }) {
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
 
-  const today = startOfDay(new Date());
-
-  const handleDayClick = (date) => {
-    const dateStr = format(date, "yyyy-MM-dd");
+  const handleDayClick = (dateStr) => {
     setSelectedDate(dateStr);
     setShowModal(true);
   };
@@ -30,7 +25,7 @@ export default function CalendarGrid({ appointments, onSave }) {
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
-  const startWeekday = getDay(monthStart);
+  const startWeekday = getDay(monthStart); // 0 (Sun) to 6 (Sat)
   const totalDays = parseInt(format(monthEnd, "d"));
 
   const rows = [];
@@ -44,12 +39,13 @@ export default function CalendarGrid({ appointments, onSave }) {
       const cellIndex = week * 7 + weekday;
 
       if (cellIndex < startWeekday) {
-        // Greyed out days from previous month
+        // Leading greyed-out days from previous month
         const prevDate = new Date(
           currentMonth.getFullYear(),
           currentMonth.getMonth(),
           -(startWeekday - weekday - 1)
         );
+
         days.push(
           <div
             key={`prev-${week}-${weekday}`}
@@ -59,12 +55,13 @@ export default function CalendarGrid({ appointments, onSave }) {
           </div>
         );
       } else if (dayCounter > totalDays) {
-        // Greyed out days from next month
+        // Trailing greyed-out days from next month
         const nextDate = new Date(
           currentMonth.getFullYear(),
           currentMonth.getMonth() + 1,
           nextMonthDay++
         );
+
         days.push(
           <div
             key={`next-${week}-${weekday}`}
@@ -83,51 +80,33 @@ export default function CalendarGrid({ appointments, onSave }) {
         const dailyAppointments = appointments.filter(
           (appt) => appt.date === dateStr
         );
-        const isToday = isSameDay(date, today);
-        const isPast = isBefore(date, today);
+        const isToday = isSameDay(date, new Date());
 
-        const commonClasses = `border p-2 h-28 overflow-auto rounded shadow-sm bg-white transition duration-150`;
-
-        if (isPast) {
-          days.push(
-            <div
-              key={dateStr}
-              className={`${commonClasses} text-gray-400 bg-gray-100 cursor-not-allowed select-none`}
-              title="Past date — not allowed"
-            >
-              <div className="text-xs font-bold">{dayCounter}</div>
-              <div className="text-[10px] italic">appointment not possible</div>
+        days.push(
+          <div
+            key={dateStr}
+            className={`border p-2 h-28 overflow-auto rounded shadow-sm hover:bg-blue-50 cursor-pointer transition duration-150 bg-white ${
+              isToday ? "border-blue-600 border-2" : ""
+            }`}
+            onClick={() => handleDayClick(dateStr)}
+          >
+            <div className="text-xs font-bold">{dayCounter}</div>
+            <div className="mt-1 space-y-1">
+              {dailyAppointments.slice(0, 3).map((appt, idx) => (
+                <div
+                  key={idx}
+                  className="text-[11px] text-gray-700 bg-blue-100 px-1 py-0.5 rounded"
+                >
+                  <div className="font-semibold text-gray-800">{appt.name}</div>
+                  {appt.time} — <span className="italic">{appt.doctor}</span>
+                </div>
+              ))}
+              {dailyAppointments.length > 3 && (
+                <div className="text-[10px] text-blue-600">+ more</div>
+              )}
             </div>
-          );
-        } else {
-          days.push(
-            <div
-              key={dateStr}
-              className={`${commonClasses} hover:bg-blue-50 cursor-pointer ${
-                isToday ? "border-blue-600 border-2" : ""
-              }`}
-              onClick={() => handleDayClick(date)}
-            >
-              <div className="text-xs font-bold">{dayCounter}</div>
-              <div className="mt-1 space-y-1">
-                {dailyAppointments.slice(0, 3).map((appt, idx) => (
-                  <div
-                    key={idx}
-                    className="text-[11px] text-gray-700 bg-blue-100 px-1 py-0.5 rounded"
-                  >
-                    <div className="font-semibold text-gray-800">
-                      {appt.name}
-                    </div>
-                    {appt.time} — <span className="italic">{appt.doctor}</span>
-                  </div>
-                ))}
-                {dailyAppointments.length > 3 && (
-                  <div className="text-[10px] text-blue-600">+ more</div>
-                )}
-              </div>
-            </div>
-          );
-        }
+          </div>
+        );
 
         dayCounter++;
       }
@@ -187,7 +166,7 @@ export default function CalendarGrid({ appointments, onSave }) {
       {/* Calendar Grid */}
       <div className="space-y-2">{rows}</div>
 
-      {/* Modal */}
+      {/* Appointment Modal */}
       {showModal && selectedDate && (
         <AppointmentModal
           selectedDate={selectedDate}

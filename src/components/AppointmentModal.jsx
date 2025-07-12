@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { PencilIcon, TrashIcon, PlusIcon } from "@heroicons/react/24/solid"; // optional, Tailwind icons
+import { PencilIcon, TrashIcon, PlusIcon } from "@heroicons/react/24/solid";
+import { parseISO, isBefore, startOfDay } from "date-fns";
 
 const PATIENTS = ["John Doe", "Jane Smith", "Alice Roy", "David Paul"];
 const DOCTORS = ["Dr. Smith", "Dr. Emily", "Dr. Raj", "Dr. Kavya"];
 
 export default function AppointmentModal({ selectedDate, onClose, onSave, appointments }) {
   const dailyAppointments = appointments.filter((a) => a.date === selectedDate);
+  const isPastDate = isBefore(parseISO(selectedDate), startOfDay(new Date()));
 
   const [showForm, setShowForm] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
@@ -14,7 +16,6 @@ export default function AppointmentModal({ selectedDate, onClose, onSave, appoin
   const [time, setTime] = useState("");
 
   useEffect(() => {
-    // Reset form when modal opens
     setShowForm(false);
     setEditingIndex(null);
     setPatient("");
@@ -23,6 +24,7 @@ export default function AppointmentModal({ selectedDate, onClose, onSave, appoin
   }, [selectedDate]);
 
   const handleEdit = (index) => {
+    if (isPastDate) return;
     const appt = dailyAppointments[index];
     setPatient(appt.name);
     setDoctor(appt.doctor);
@@ -32,6 +34,7 @@ export default function AppointmentModal({ selectedDate, onClose, onSave, appoin
   };
 
   const handleDelete = (index) => {
+    if (isPastDate) return;
     const toDelete = dailyAppointments[index];
     const updated = appointments.filter(
       (a) =>
@@ -49,12 +52,7 @@ export default function AppointmentModal({ selectedDate, onClose, onSave, appoin
     e.preventDefault();
     if (!patient || !doctor || !time) return alert("Fill all fields");
 
-    const newAppt = {
-      date: selectedDate,
-      time,
-      name: patient,
-      doctor,
-    };
+    const newAppt = { date: selectedDate, time, name: patient, doctor };
 
     let updated;
     if (editingIndex !== null) {
@@ -92,6 +90,12 @@ export default function AppointmentModal({ selectedDate, onClose, onSave, appoin
           </button>
         </div>
 
+        {isPastDate && (
+          <div className="text-sm text-red-600 mb-3">
+            Past date — We cannot add or edit appointments.
+          </div>
+        )}
+
         {/* Appointment List */}
         {dailyAppointments.length > 0 ? (
           <div className="space-y-2 mb-4 max-h-40 overflow-y-auto">
@@ -106,14 +110,16 @@ export default function AppointmentModal({ selectedDate, onClose, onSave, appoin
                     {appt.time} — {appt.doctor}
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <button onClick={() => handleEdit(idx)} title="Edit">
-                    <PencilIcon className="h-4 w-4 text-blue-600 hover:text-blue-800" />
-                  </button>
-                  <button onClick={() => handleDelete(idx)} title="Delete">
-                    <TrashIcon className="h-4 w-4 text-red-600 hover:text-red-800" />
-                  </button>
-                </div>
+                {!isPastDate && (
+                  <div className="flex gap-2">
+                    <button onClick={() => handleEdit(idx)} title="Edit">
+                      <PencilIcon className="h-4 w-4 text-blue-600 hover:text-blue-800" />
+                    </button>
+                    <button onClick={() => handleDelete(idx)} title="Delete">
+                      <TrashIcon className="h-4 w-4 text-red-600 hover:text-red-800" />
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -122,7 +128,7 @@ export default function AppointmentModal({ selectedDate, onClose, onSave, appoin
         )}
 
         {/* New Appointment Button */}
-        {!showForm && (
+        {!showForm && !isPastDate && (
           <button
             onClick={() => setShowForm(true)}
             className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm mb-2"
@@ -142,6 +148,7 @@ export default function AppointmentModal({ selectedDate, onClose, onSave, appoin
                 value={patient}
                 onChange={(e) => setPatient(e.target.value)}
                 required
+                disabled={isPastDate}
               >
                 <option value="">Select patient</option>
                 {PATIENTS.map((p) => (
@@ -159,6 +166,7 @@ export default function AppointmentModal({ selectedDate, onClose, onSave, appoin
                 value={doctor}
                 onChange={(e) => setDoctor(e.target.value)}
                 required
+                disabled={isPastDate}
               >
                 <option value="">Select doctor</option>
                 {DOCTORS.map((d) => (
@@ -177,6 +185,7 @@ export default function AppointmentModal({ selectedDate, onClose, onSave, appoin
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
                 required
+                disabled={isPastDate}
               />
             </div>
 
@@ -196,7 +205,12 @@ export default function AppointmentModal({ selectedDate, onClose, onSave, appoin
               </button>
               <button
                 type="submit"
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                disabled={isPastDate}
+                className={`px-4 py-2 rounded text-white ${
+                  isPastDate
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
+                }`}
               >
                 {editingIndex !== null ? "Update" : "Save"}
               </button>
