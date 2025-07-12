@@ -11,16 +11,27 @@ import {
   isSameMonth,
   isSameDay,
 } from "date-fns";
-
-// Dummy data (replace with localStorage integration later)
-const appointments = [
-  { date: "2025-07-05", time: "10:00", name: "John Doe" },
-  { date: "2025-07-05", time: "11:30", name: "Jane Smith" },
-  { date: "2025-07-12", time: "09:00", name: "Alice Roy" },
-];
+import AppointmentModal from "./AppointmentModal"; // Make sure this path is correct
 
 export default function CalendarGrid() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [appointments, setAppointments] = useState([
+    { date: "2025-07-05", time: "10:00", name: "John Doe", doctor: "Dr. Smith" },
+    { date: "2025-07-05", time: "11:30", name: "Jane Smith", doctor: "Dr. Kavya" },
+    { date: "2025-07-12", time: "09:00", name: "Alice Roy", doctor: "Dr. Emily" },
+  ]);
+
+  const [showModal, setShowModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+
+  const handleDayClick = (dateStr) => {
+    setSelectedDate(dateStr);
+    setShowModal(true);
+  };
+
+  const handleSaveAppointment = (newAppointment) => {
+    setAppointments((prev) => [...prev, newAppointment]);
+  };
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
@@ -47,7 +58,7 @@ export default function CalendarGrid() {
             ${!isSameMonth(day, monthStart) ? "bg-gray-100 text-gray-400" : "bg-white"}
             ${isToday ? "border-blue-600 border-2" : ""}
           `}
-          onClick={() => alert(`Open modal for ${dateStr}`)} // Placeholder
+          onClick={() => handleDayClick(dateStr)}
         >
           <div className="text-xs font-bold">{format(day, "d")}</div>
           <div className="mt-1 space-y-1">
@@ -112,6 +123,15 @@ export default function CalendarGrid() {
 
       {/* Calendar rows */}
       <div className="space-y-2">{rows}</div>
+
+      {/* Modal */}
+      {showModal && selectedDate && (
+        <AppointmentModal
+          selectedDate={selectedDate}
+          onClose={() => setShowModal(false)}
+          onSave={handleSaveAppointment}
+        />
+      )}
     </div>
   );
 }

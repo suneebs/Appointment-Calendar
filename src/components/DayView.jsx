@@ -1,19 +1,25 @@
 import { useState } from "react";
 import { format } from "date-fns";
-
-// Dummy data (replace with localStorage integration later)
-const appointments = [
-  { date: "2025-07-12", time: "10:00", name: "John Doe" },
-  { date: "2025-07-12", time: "12:00", name: "Jane Smith" },
-  { date: "2025-07-13", time: "09:30", name: "Alice Roy" },
-  { date: "2025-07-12", time: "13:00", name: "David Paul" },
-  { date: "2025-07-12", time: "14:00", name: "Emma Watson" },
-  { date: "2025-07-12", time: "15:00", name: "Michael Scott" },
-];
+import AppointmentModal from "./AppointmentModal"; // adjust path if needed
 
 export default function DayView() {
   const todayStr = format(new Date(), "yyyy-MM-dd");
   const [selectedDate, setSelectedDate] = useState(todayStr);
+
+  const [appointments, setAppointments] = useState([
+    { date: "2025-07-12", time: "10:00", name: "John Doe", doctor: "Dr. Smith" },
+    { date: "2025-07-12", time: "12:00", name: "Jane Smith", doctor: "Dr. Emily" },
+    { date: "2025-07-13", time: "09:30", name: "Alice Roy", doctor: "Dr. Raj" },
+    { date: "2025-07-12", time: "13:00", name: "David Paul", doctor: "Dr. Kavya" },
+    { date: "2025-07-12", time: "14:00", name: "Emma Watson", doctor: "Dr. Smith" },
+    { date: "2025-07-12", time: "15:00", name: "Michael Scott", doctor: "Dr. Raj" },
+  ]);
+
+  const [showModal, setShowModal] = useState(false);
+
+  const handleSaveAppointment = (newAppointment) => {
+    setAppointments((prev) => [...prev, newAppointment]);
+  };
 
   const dailyAppointments = appointments
     .filter((appt) => appt.date === selectedDate)
@@ -43,7 +49,9 @@ export default function DayView() {
               className="border-l-4 border-blue-500 bg-blue-50 px-3 py-2 rounded shadow-sm"
             >
               <div className="text-sm font-semibold text-gray-800">{appt.name}</div>
-              <div className="text-xs text-gray-600">{appt.time}</div>
+              <div className="text-xs text-gray-600">
+                {appt.time} — <span className="italic">{appt.doctor}</span>
+              </div>
             </div>
           ))
         ) : (
@@ -55,11 +63,20 @@ export default function DayView() {
       <div className="mt-6">
         <button
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-          onClick={() => alert("Open appointment form")}
+          onClick={() => setShowModal(true)}
         >
           + Add Appointment
         </button>
       </div>
+
+      {/* Appointment Modal */}
+      {showModal && (
+        <AppointmentModal
+          selectedDate={selectedDate}
+          onClose={() => setShowModal(false)}
+          onSave={handleSaveAppointment}
+        />
+      )}
     </div>
   );
 }
