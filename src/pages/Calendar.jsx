@@ -13,12 +13,6 @@ export default function Calendar() {
     setAppointments(stored);
   }, []);
 
-  const handleSaveAppointment = (newAppointment) => {
-    const updated = [...appointments, newAppointment];
-    setAppointments(updated);
-    saveAppointments(updated);
-  };
-
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
     navigate("/");
