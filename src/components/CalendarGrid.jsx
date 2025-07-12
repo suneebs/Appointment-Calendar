@@ -57,7 +57,8 @@ export default function CalendarGrid({ appointments, onSave }) {
           <div className="mt-1 space-y-1">
             {dailyAppointments.slice(0, 3).map((appt, idx) => (
               <div key={idx} className="text-[11px] text-gray-700 bg-blue-100 px-1 py-0.5 rounded">
-                {appt.time} - {appt.name}
+                <div className="font-semibold text-gray-800">{appt.name}</div>
+                {appt.time} - {appt.doctor}
               </div>
             ))}
             {dailyAppointments.length > 3 && (
