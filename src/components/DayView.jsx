@@ -105,10 +105,6 @@ export default function DayView({ appointments, onSave, isDarkMode, onDateClick 
     }
   };
 
-  const handleSave = (updatedAppointments) => {
-    onSave(updatedAppointments);
-    setShowModal(false);
-  };
 
   return (
     <div className={`${themeStyles.container.background} ${themeStyles.container.text} ${themeStyles.container.border} rounded-2xl max-h-[90vh] overflow-hidden transition-all duration-300 ease-in-out`}>
@@ -165,7 +161,7 @@ export default function DayView({ appointments, onSave, isDarkMode, onDateClick 
                           {appt.time}
                         </span>
                         <span className={`${themeStyles.appointments.doctor}`}>
-                          Dr. {appt.doctor}
+                          {appt.doctor}
                         </span>
                       </div>
                     </div>

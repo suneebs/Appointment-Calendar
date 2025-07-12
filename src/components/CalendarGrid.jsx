@@ -6,22 +6,9 @@ import {
   isSameDay,
 } from "date-fns";
 import { useState } from "react";
-import AppointmentModal from "./AppointmentModal";
 
 export default function CalendarGrid({ appointments, onSave, isDarkMode, onDateClick }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [showModal, setShowModal] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null);
-
-  const handleDayClick = (dateStr) => {
-    setSelectedDate(dateStr);
-    setShowModal(true);
-  };
-
-  const handleSave = (updatedAppointments) => {
-    onSave(updatedAppointments);
-    setShowModal(false);
-  };
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
