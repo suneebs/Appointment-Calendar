@@ -1,24 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
-import AppointmentModal from "./AppointmentModal"; // adjust path if needed
+import AppointmentModal from "./AppointmentModal";
+import { loadAppointments, saveAppointments } from "../utils/storage"; // Adjust path if needed
 
 export default function DayView() {
   const todayStr = format(new Date(), "yyyy-MM-dd");
   const [selectedDate, setSelectedDate] = useState(todayStr);
-
-  const [appointments, setAppointments] = useState([
-    { date: "2025-07-12", time: "10:00", name: "John Doe", doctor: "Dr. Smith" },
-    { date: "2025-07-12", time: "12:00", name: "Jane Smith", doctor: "Dr. Emily" },
-    { date: "2025-07-13", time: "09:30", name: "Alice Roy", doctor: "Dr. Raj" },
-    { date: "2025-07-12", time: "13:00", name: "David Paul", doctor: "Dr. Kavya" },
-    { date: "2025-07-12", time: "14:00", name: "Emma Watson", doctor: "Dr. Smith" },
-    { date: "2025-07-12", time: "15:00", name: "Michael Scott", doctor: "Dr. Raj" },
-  ]);
-
+  const [appointments, setAppointments] = useState([]);
   const [showModal, setShowModal] = useState(false);
 
+  useEffect(() => {
+    const stored = loadAppointments();
+    setAppointments(stored);
+  }, []);
+
   const handleSaveAppointment = (newAppointment) => {
-    setAppointments((prev) => [...prev, newAppointment]);
+    const updated = [...appointments, newAppointment];
+    setAppointments(updated);
+    saveAppointments(updated);
   };
 
   const dailyAppointments = appointments
