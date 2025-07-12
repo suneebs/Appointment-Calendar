@@ -38,12 +38,23 @@ export default function Calendar() {
 
       {/* Mobile */}
       <div className="block md:hidden">
-        <DayView appointments={appointments} onSave={handleSaveAppointment} />
+        <DayView 
+        appointments={appointments}
+        onSave={(updated) => {
+      setAppointments(updated);
+      saveAppointments(updated);  
+  }} />
       </div>
 
       {/* Desktop */}
       <div className="hidden md:block">
-        <CalendarGrid appointments={appointments} onSave={handleSaveAppointment} />
+        <CalendarGrid
+  appointments={appointments}
+  onSave={(updated) => {
+    setAppointments(updated);
+    saveAppointments(updated);
+  }}
+/>
       </div>
     </div>
   );

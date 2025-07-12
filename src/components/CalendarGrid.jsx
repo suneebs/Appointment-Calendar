@@ -18,8 +18,8 @@ export default function CalendarGrid({ appointments, onSave }) {
     setShowModal(true);
   };
 
-  const handleSave = (appt) => {
-    onSave(appt);
+  const handleSave = (updatedAppointments) => {
+    onSave(updatedAppointments);
     setShowModal(false);
   };
 
@@ -72,7 +72,8 @@ export default function CalendarGrid({ appointments, onSave }) {
                   key={idx}
                   className="text-[11px] text-gray-700 bg-blue-100 px-1 py-0.5 rounded"
                 >
-                  {appt.time} - {appt.name}
+                  <div className="font-semibold text-gray-800">{appt.name}</div>
+                  {appt.time} — <span className="italic">{appt.doctor}</span>
                 </div>
               ))}
               {dailyAppointments.length > 3 && (
@@ -146,6 +147,7 @@ export default function CalendarGrid({ appointments, onSave }) {
           selectedDate={selectedDate}
           onClose={() => setShowModal(false)}
           onSave={handleSave}
+          appointments={appointments}
         />
       )}
     </div>
