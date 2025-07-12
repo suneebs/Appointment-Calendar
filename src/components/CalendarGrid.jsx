@@ -8,7 +8,7 @@ import {
 import { useState } from "react";
 import AppointmentModal from "./AppointmentModal";
 
-export default function CalendarGrid({ appointments, onSave }) {
+export default function CalendarGrid({ appointments, onSave, isDarkMode }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -33,10 +33,40 @@ export default function CalendarGrid({ appointments, onSave }) {
   let nextMonthDay = 1;
 
   const totalCells = startWeekday + totalDays;
-const totalWeeks = Math.ceil(totalCells / 7);
+  const totalWeeks = Math.ceil(totalCells / 7);
 
-for (let week = 0; week < totalWeeks; week++) {
+  // Theme-based styling
+  const themeStyles = {
+    prevNextMonth: isDarkMode 
+      ? "bg-gray-800 text-gray-500" 
+      : "bg-gray-100 text-gray-400",
+    currentDayCell: isDarkMode 
+      ? "bg-gray-800 border-gray-700 hover:bg-gray-700 text-gray-200" 
+      : "bg-white border-gray-200 hover:bg-blue-50 text-gray-900",
+    todayBorder: isDarkMode 
+      ? "border-blue-400 border-2" 
+      : "border-blue-600 border-2",
+    appointmentCard: isDarkMode 
+      ? "bg-blue-900 text-blue-100" 
+      : "bg-blue-100 text-gray-700",
+    appointmentName: isDarkMode 
+      ? "text-blue-200" 
+      : "text-gray-800",
+    moreText: isDarkMode 
+      ? "text-blue-400" 
+      : "text-blue-600",
+    navButtons: isDarkMode 
+      ? "bg-gray-700 hover:bg-gray-600 text-gray-200" 
+      : "bg-gray-200 hover:bg-gray-300 text-gray-700",
+    monthTitle: isDarkMode 
+      ? "text-blue-400" 
+      : "text-blue-700",
+    weekdayHeaders: isDarkMode 
+      ? "text-gray-300" 
+      : "text-gray-600"
+  };
 
+  for (let week = 0; week < totalWeeks; week++) {
     const days = [];
 
     for (let weekday = 0; weekday < 7; weekday++) {
@@ -53,7 +83,7 @@ for (let week = 0; week < totalWeeks; week++) {
         days.push(
           <div
             key={`prev-${week}-${weekday}`}
-            className="p-2 h-28 bg-gray-100 text-gray-400 text-xs text-center rounded select-none"
+            className={`p-2 h-28 ${themeStyles.prevNextMonth} text-xs text-center rounded select-none transition-colors duration-200`}
           >
             {format(prevDate, "d")}
           </div>
@@ -69,7 +99,7 @@ for (let week = 0; week < totalWeeks; week++) {
         days.push(
           <div
             key={`next-${week}-${weekday}`}
-            className="p-2 h-28 bg-gray-100 text-gray-400 text-xs text-center rounded select-none"
+            className={`p-2 h-28 ${themeStyles.prevNextMonth} text-xs text-center rounded select-none transition-colors duration-200`}
           >
             {format(nextDate, "d")}
           </div>
@@ -89,8 +119,8 @@ for (let week = 0; week < totalWeeks; week++) {
         days.push(
           <div
             key={dateStr}
-            className={`border p-2 h-28 overflow-auto rounded shadow-sm hover:bg-blue-50 cursor-pointer transition duration-150 bg-white ${
-              isToday ? "border-blue-600 border-2" : ""
+            className={`border p-2 h-28 overflow-auto rounded shadow-sm cursor-pointer transition-all duration-200 ${themeStyles.currentDayCell} ${
+              isToday ? themeStyles.todayBorder : ""
             }`}
             onClick={() => handleDayClick(dateStr)}
           >
@@ -99,14 +129,18 @@ for (let week = 0; week < totalWeeks; week++) {
               {dailyAppointments.slice(0, 3).map((appt, idx) => (
                 <div
                   key={idx}
-                  className="text-[11px] text-gray-700 bg-blue-100 px-1 py-0.5 rounded"
+                  className={`text-[11px] ${themeStyles.appointmentCard} px-1 py-0.5 rounded transition-colors duration-200`}
                 >
-                  <div className="font-semibold text-gray-800">{appt.name}</div>
+                  <div className={`font-semibold ${themeStyles.appointmentName}`}>
+                    {appt.name}
+                  </div>
                   {appt.time} — <span className="italic">{appt.doctor}</span>
                 </div>
               ))}
               {dailyAppointments.length > 3 && (
-                <div className="text-[10px] text-blue-600">+ more</div>
+                <div className={`text-[10px] ${themeStyles.moreText}`}>
+                  + more
+                </div>
               )}
             </div>
           </div>
@@ -134,12 +168,12 @@ for (let week = 0; week < totalWeeks; week++) {
                 new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
             )
           }
-          className="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded"
+          className={`text-sm ${themeStyles.navButtons} px-3 py-1 rounded transition-colors duration-200`}
         >
           ← Prev
         </button>
 
-        <h2 className="text-xl font-semibold text-center text-blue-700">
+        <h2 className={`text-xl font-semibold text-center ${themeStyles.monthTitle} transition-colors duration-200`}>
           {format(currentMonth, "MMMM yyyy")}
         </h2>
 
@@ -150,14 +184,14 @@ for (let week = 0; week < totalWeeks; week++) {
                 new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
             )
           }
-          className="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded"
+          className={`text-sm ${themeStyles.navButtons} px-3 py-1 rounded transition-colors duration-200`}
         >
           Next →
         </button>
       </div>
 
       {/* Weekdays */}
-      <div className="grid grid-cols-7 text-center font-semibold text-gray-600 text-sm">
+      <div className={`grid grid-cols-7 text-center font-semibold ${themeStyles.weekdayHeaders} text-sm transition-colors duration-200`}>
         <div>Sun</div>
         <div>Mon</div>
         <div>Tue</div>
@@ -177,6 +211,7 @@ for (let week = 0; week < totalWeeks; week++) {
           onClose={() => setShowModal(false)}
           onSave={handleSave}
           appointments={appointments}
+          isDarkMode={isDarkMode}
         />
       )}
     </div>
