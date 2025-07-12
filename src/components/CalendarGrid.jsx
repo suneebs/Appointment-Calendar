@@ -32,7 +32,11 @@ export default function CalendarGrid({ appointments, onSave }) {
   let dayCounter = 1;
   let nextMonthDay = 1;
 
-  for (let week = 0; week < 6; week++) {
+  const totalCells = startWeekday + totalDays;
+const totalWeeks = Math.ceil(totalCells / 7);
+
+for (let week = 0; week < totalWeeks; week++) {
+
     const days = [];
 
     for (let weekday = 0; weekday < 7; weekday++) {
