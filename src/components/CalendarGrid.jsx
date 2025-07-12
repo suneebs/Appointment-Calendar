@@ -14,26 +14,19 @@ import {
 import AppointmentModal from "./AppointmentModal";
 import { loadAppointments, saveAppointments } from "../utils/storage";
 
-export default function CalendarGrid() {
+export default function CalendarGrid({ appointments, onSave }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [appointments, setAppointments] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
-
-  useEffect(() => {
-    const stored = loadAppointments();
-    setAppointments(stored);
-  }, []);
-
-  const handleSaveAppointment = (newAppointment) => {
-    const updated = [...appointments, newAppointment];
-    setAppointments(updated);            // update state
-    saveAppointments(updated);           // immediately save to localStorage
-  };
 
   const handleDayClick = (dateStr) => {
     setSelectedDate(dateStr);
     setShowModal(true);
+  };
+
+  const handleSave = (appt) => {
+    onSave(appt);
+    setShowModal(false);
   };
 
   const monthStart = startOfMonth(currentMonth);
@@ -114,7 +107,7 @@ export default function CalendarGrid() {
         <AppointmentModal
           selectedDate={selectedDate}
           onClose={() => setShowModal(false)}
-          onSave={handleSaveAppointment}
+          onSave={handleSave}
         />
       )}
     </div>

@@ -1,12 +1,26 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import CalendarGrid from "../components/CalendarGrid";
 import DayView from "../components/DayView";
+import { loadAppointments, saveAppointments } from "../utils/storage";
 
 export default function Calendar() {
   const navigate = useNavigate();
+  const [appointments, setAppointments] = useState([]);
+
+  useEffect(() => {
+    const stored = loadAppointments();
+    setAppointments(stored);
+  }, []);
+
+  const handleSaveAppointment = (newAppointment) => {
+    const updated = [...appointments, newAppointment];
+    setAppointments(updated);
+    saveAppointments(updated);
+  };
 
   const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn"); 
+    localStorage.removeItem("isLoggedIn");
     navigate("/");
   };
 
@@ -22,14 +36,14 @@ export default function Calendar() {
         </button>
       </div>
 
-      {/* Mobile: Show day view */}
+      {/* Mobile */}
       <div className="block md:hidden">
-        <DayView />
+        <DayView appointments={appointments} onSave={handleSaveAppointment} />
       </div>
 
-      {/* Desktop: Show month view */}
+      {/* Desktop */}
       <div className="hidden md:block">
-        <CalendarGrid />
+        <CalendarGrid appointments={appointments} onSave={handleSaveAppointment} />
       </div>
     </div>
   );

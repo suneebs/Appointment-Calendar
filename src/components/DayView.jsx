@@ -3,21 +3,13 @@ import { format } from "date-fns";
 import AppointmentModal from "./AppointmentModal";
 import { loadAppointments, saveAppointments } from "../utils/storage"; // Adjust path if needed
 
-export default function DayView() {
-  const todayStr = format(new Date(), "yyyy-MM-dd");
-  const [selectedDate, setSelectedDate] = useState(todayStr);
-  const [appointments, setAppointments] = useState([]);
+export default function DayView({ appointments, onSave }) {
+  const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-    const stored = loadAppointments();
-    setAppointments(stored);
-  }, []);
-
-  const handleSaveAppointment = (newAppointment) => {
-    const updated = [...appointments, newAppointment];
-    setAppointments(updated);
-    saveAppointments(updated);
+  const handleSave = (appt) => {
+    onSave(appt);
+    setShowModal(false);
   };
 
   const dailyAppointments = appointments
@@ -73,7 +65,7 @@ export default function DayView() {
         <AppointmentModal
           selectedDate={selectedDate}
           onClose={() => setShowModal(false)}
-          onSave={handleSaveAppointment}
+          onSave={handleSave}
         />
       )}
     </div>
