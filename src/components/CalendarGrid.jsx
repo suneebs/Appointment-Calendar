@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   startOfMonth,
   endOfMonth,
@@ -11,26 +11,29 @@ import {
   isSameMonth,
   isSameDay,
 } from "date-fns";
-import AppointmentModal from "./AppointmentModal"; // Make sure this path is correct
+import AppointmentModal from "./AppointmentModal";
+import { loadAppointments, saveAppointments } from "../utils/storage";
 
 export default function CalendarGrid() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [appointments, setAppointments] = useState([
-    { date: "2025-07-05", time: "10:00", name: "John Doe", doctor: "Dr. Smith" },
-    { date: "2025-07-05", time: "11:30", name: "Jane Smith", doctor: "Dr. Kavya" },
-    { date: "2025-07-12", time: "09:00", name: "Alice Roy", doctor: "Dr. Emily" },
-  ]);
-
+  const [appointments, setAppointments] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
+
+  useEffect(() => {
+    const stored = loadAppointments();
+    setAppointments(stored);
+  }, []);
+
+  const handleSaveAppointment = (newAppointment) => {
+    const updated = [...appointments, newAppointment];
+    setAppointments(updated);            // update state
+    saveAppointments(updated);           // immediately save to localStorage
+  };
 
   const handleDayClick = (dateStr) => {
     setSelectedDate(dateStr);
     setShowModal(true);
-  };
-
-  const handleSaveAppointment = (newAppointment) => {
-    setAppointments((prev) => [...prev, newAppointment]);
   };
 
   const monthStart = startOfMonth(currentMonth);
@@ -45,10 +48,7 @@ export default function CalendarGrid() {
   while (day <= endDate) {
     for (let i = 0; i < 7; i++) {
       const dateStr = format(day, "yyyy-MM-dd");
-      const dailyAppointments = appointments.filter(
-        (appt) => appt.date === dateStr
-      );
-
+      const dailyAppointments = appointments.filter((appt) => appt.date === dateStr);
       const isToday = isSameDay(day, new Date());
 
       days.push(
@@ -63,10 +63,7 @@ export default function CalendarGrid() {
           <div className="text-xs font-bold">{format(day, "d")}</div>
           <div className="mt-1 space-y-1">
             {dailyAppointments.slice(0, 3).map((appt, idx) => (
-              <div
-                key={idx}
-                className="text-[11px] text-gray-700 bg-blue-100 px-1 py-0.5 rounded"
-              >
+              <div key={idx} className="text-[11px] text-gray-700 bg-blue-100 px-1 py-0.5 rounded">
                 {appt.time} - {appt.name}
               </div>
             ))}
@@ -89,12 +86,9 @@ export default function CalendarGrid() {
 
   return (
     <div className="space-y-4">
-      {/* Calendar Header */}
+      {/* Header */}
       <div className="flex items-center justify-between px-2">
-        <button
-          onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-          className="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded"
-        >
+        <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">
           ← Prev
         </button>
 
@@ -102,26 +96,17 @@ export default function CalendarGrid() {
           {format(currentMonth, "MMMM yyyy")}
         </h2>
 
-        <button
-          onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-          className="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded"
-        >
+        <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">
           Next →
         </button>
       </div>
 
-      {/* Weekday labels */}
+      {/* Weekdays */}
       <div className="grid grid-cols-7 text-center font-semibold text-gray-600 text-sm">
-        <div>Sun</div>
-        <div>Mon</div>
-        <div>Tue</div>
-        <div>Wed</div>
-        <div>Thu</div>
-        <div>Fri</div>
-        <div>Sat</div>
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
       </div>
 
-      {/* Calendar rows */}
+      {/* Grid */}
       <div className="space-y-2">{rows}</div>
 
       {/* Modal */}
