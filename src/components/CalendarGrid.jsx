@@ -153,7 +153,7 @@ export default function CalendarGrid({ appointments = [], onSave, isDarkMode, on
                     </span>
                     {appt.doctor && (
                       <span className={`text-xs ${themeStyles.appointmentDoctor}`}>
-                        Dr. {appt.doctor}
+                        {appt.doctor}
                       </span>
                     )}
                   </div>

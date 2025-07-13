@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { PencilIcon, TrashIcon, PlusIcon } from "@heroicons/react/24/solid";
 import { parseISO, isBefore, startOfDay } from "date-fns";
 
-const PATIENTS = ["John Doe", "Jane Smith", "Alice Roy", "David Paul"];
-const DOCTORS = ["Dr. Smith", "Dr. Emily", "Dr. Raj", "Dr. Kavya"];
+const PATIENTS = ["Peter Parker", "Clark Kent", "Bruce Wayne", "Diana Prince", "Tony Stark"];
+const DOCTORS = ["Dr. Phoebe", "Dr. Ross", "Dr. Monica", "Dr. Chandler", "Dr. Joey"];
 
 export default function AppointmentModal({ selectedDate, onClose, onSave, appointments, isDarkMode }) {
   const dailyAppointments = appointments.filter((a) => a.date === selectedDate);
