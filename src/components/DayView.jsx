@@ -171,7 +171,7 @@ export default function DayView({ appointments, onSave, isDarkMode, onDateClick 
               ))
             ) : (
               <div className={`${themeStyles.emptyState.background} ${themeStyles.emptyState.border} ${themeStyles.emptyState.text} text-center py-12 rounded-xl transition-all duration-200`}>
-                <div className="text-4xl mb-4 opacity-40">📅</div>
+                <div className="text-4xl mb-4 opacity-40">🗓️</div>
                 <div className="text-base font-medium mb-2">No appointments scheduled</div>
                 <div className="text-sm opacity-75">Your schedule is clear for this day</div>
               </div>
